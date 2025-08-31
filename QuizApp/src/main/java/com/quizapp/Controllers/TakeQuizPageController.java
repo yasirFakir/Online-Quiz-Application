@@ -2,10 +2,15 @@ package com.quizapp.Controllers;
 
 import com.quizapp.Actions.TakeQuizAction;
 import com.quizapp.DatabaseUtil;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.util.Duration;
+
+import java.io.IOException; // Added for handling navigation exceptions
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,16 +25,37 @@ public class TakeQuizPageController {
     @FXML
     private GridPane questionGrid;
     @FXML
+    private Label timerLabel;
+    @FXML
     private Button submitButton;
+    @FXML
+    private Button homeButton; // Added home button
+
+    private int quizDurationMinutes;
+    private Timeline timeline;
 
     private List<Question> questions = new ArrayList<>();
     private Map<Integer, ToggleGroup> toggleGroups = new HashMap<>();
 
     @FXML
     public void initialize() {
+        loadQuizDetails(); // Load quiz duration
         loadQuestionsFromDatabase();
         displayQuestions();
         setupSubmitAction();
+        startTimer(); // Start the timer after loading quiz details
+
+        homeButton.setOnAction(e -> {
+            try {
+                // Stop the timer if the user navigates away
+                if (timeline != null) {
+                    timeline.stop();
+                }
+                com.quizapp.Actions.LoginAction.openStudentMain(homeButton); // Navigate to student main page
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
     private void loadQuestionsFromDatabase() {
@@ -108,6 +134,49 @@ public class TakeQuizPageController {
             // Update leaderboard
             takeQuizAction.updateLeaderboardScore((int) score);
         });
+    }
+
+    private void loadQuizDetails() {
+        String sql = "SELECT quizDuration FROM Quiz WHERE id = ?";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, TakeQuizAction.currentQuizId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                quizDurationMinutes = rs.getInt("quizDuration");
+            } else {
+                System.err.println("Quiz duration not found for quizId: " + TakeQuizAction.currentQuizId);
+                quizDurationMinutes = 0; // Default to 0 if not found
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error loading quiz duration: " + e.getMessage());
+            e.printStackTrace();
+            quizDurationMinutes = 0; // Default to 0 on error
+        }
+    }
+
+    private void startTimer() {
+        final int[] seconds = {quizDurationMinutes * 60}; // Convert minutes to seconds
+
+        timerLabel.setText(String.format("Time: %02d:%02d", seconds[0] / 60, seconds[0] % 60));
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            seconds[0]--;
+            if (seconds[0] >= 0) {
+                timerLabel.setText(String.format("Time: %02d:%02d", seconds[0] / 60, seconds[0] % 60));
+            } else {
+                timeline.stop();
+                // Auto-submit quiz when timer runs out
+                submitButton.fire(); // Simulate button click
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Time's Up!");
+                alert.setHeaderText(null);
+                alert.setContentText("Your time for the quiz has run out. Your answers have been submitted.");
+                alert.showAndWait();
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
     private static class Question {

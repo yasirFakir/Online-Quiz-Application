@@ -76,7 +76,9 @@ public class SignUpAction {
         return false;
     }
 
-    public static void start() throws IOException {
+    public static void start(javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
         FXMLLoader fxmlLoader = new FXMLLoader(SignUpAction.class.getResource("/com/quizapp/LoginPageUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage stage = new Stage();

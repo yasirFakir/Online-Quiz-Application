@@ -35,6 +35,12 @@ public class StudentMainPageController {
     private ImageView logoImage;
     @FXML
     private ImageView userImage;
+    @FXML
+    private Button logoutButton; // Added logout button
+    @FXML
+    private Button homeButton; // Added home button
+    @FXML
+    private Button userButton; // Added user button
 
     @FXML
     public void initialize(){
@@ -49,7 +55,7 @@ public class StudentMainPageController {
 
         enroll.setOnAction(e -> {
             try {
-                openEnrollPage();
+                openEnrollPage(enroll); // Pass the enroll button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -57,10 +63,32 @@ public class StudentMainPageController {
 
         leaderBoard.setOnAction(e -> {
             try {
-                openLeaderBoard();
+                openLeaderBoard(leaderBoard); // Pass the leaderBoard button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+        });
+
+        logoutButton.setOnAction(e -> {
+            try {
+                com.quizapp.Actions.LoginAction.logout(logoutButton);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        homeButton.setOnAction(e -> {
+            try {
+                // Reload the current page (StudentMain.fxml)
+                com.quizapp.Actions.LoginAction.openStudentMain(homeButton);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        userButton.setOnAction(e -> {
+            // Placeholder for user profile action
+            System.out.println("User button clicked!");
         });
     }
 
@@ -133,7 +161,7 @@ public class StudentMainPageController {
                     Button takeQuizButton = new Button("Take Quiz");
                     takeQuizButton.setOnAction(e -> {
                         try {
-                            openCourseListStudent(courseId);
+                            openCourseListStudent(courseId, takeQuizButton); // Pass the takeQuizButton
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }

@@ -25,13 +25,11 @@ public class LoginAction {
         if (loginResult == 1) {  // Teacher login
             messageLabel.setTextFill(Color.GREEN);
             messageLabel.setText("Login successful!\nYou are a teacher.");
-            openTeacherMain();  // Open teacher window
-            closeCurrentWindow(loginButton);
+            openTeacherMain(loginButton);  // Open teacher window, pass loginButton
         } else if (loginResult == 2) {  // Student login
             messageLabel.setTextFill(Color.GREEN);
             messageLabel.setText("Login successful!\nYou are a student.");
-            openStudentMain();
-            closeCurrentWindow(loginButton);
+            openStudentMain(loginButton); // Open student window, pass loginButton
         } else {  // Invalid login
             messageLabel.setTextFill(Color.RED);
             messageLabel.setText("Invalid username or password.");
@@ -45,8 +43,10 @@ public class LoginAction {
     }
 
     // Method to open the teacher main window
-    public void openTeacherMain() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/TeacherMain.fxml"));
+    public static void openTeacherMain(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/TeacherMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
@@ -57,8 +57,10 @@ public class LoginAction {
     }
 
     // Method to open the sign-up window (kept for navigation, not directly related to login logic)
-    public void openSignUpWindow() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/SignUpPageUI.fxml"));
+    public void openSignUpWindow(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/SignUpPageUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
@@ -69,8 +71,10 @@ public class LoginAction {
     }
 
     // Method to open the student main window
-    public void openStudentMain() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/StudentMain.fxml"));
+    public static void openStudentMain(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/StudentMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage studentMainStage = new Stage();
         studentMainStage.setMaximized(true);
@@ -106,8 +110,17 @@ public class LoginAction {
         return 0; // Invalid credentials or database error
     }
 
-    public void closeCurrentWindow(Button button) {
-        Stage stage = (Stage) button.getScene().getWindow();
-        stage.close();  // Close the current stage (login window)
+        public static void logout(Button currentButton) throws IOException {
+        App.username = null; // Clear the logged-in user
+
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/LoginPageUI.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = new Stage();
+        stage.setMaximized(true);
+        stage.setTitle("Login Page");
+        stage.setScene(scene);
+        stage.show();
     }
 }

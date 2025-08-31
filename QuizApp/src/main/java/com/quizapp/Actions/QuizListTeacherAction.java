@@ -36,7 +36,9 @@ public class QuizListTeacherAction {
         return quizMap;
     }
 
-    public static void openCourseListTeacher(String courseId) throws IOException {
+    public static void openCourseListTeacher(String courseId, javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
         QuizListTeacherAction.currentCourseId = courseId;
         FXMLLoader fxmlLoader = new FXMLLoader(QuizListTeacherAction.class.getResource("/com/quizapp/QuizListTeacher.fxml"));
         Scene scene = new Scene(fxmlLoader.load());

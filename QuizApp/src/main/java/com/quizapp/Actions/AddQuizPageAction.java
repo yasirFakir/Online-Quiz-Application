@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class AddQuizPageAction {
 
-    public void saveQuizToDatabase(String courseName, String title, List<Question> questions) {
+    public void saveQuizToDatabase(String courseName, String title, int numQuestions, int quizDuration, List<Question> questions) {
         if (title.isEmpty()) {
             showErrorMessage("Quiz title is required.");
             return;
@@ -49,11 +49,13 @@ public class AddQuizPageAction {
 
             // Insert Quiz
             String quizId = UUID.randomUUID().toString();
-            String insertQuizSql = "INSERT INTO Quiz (id, title, courseId) VALUES (?, ?, ?)";
+            String insertQuizSql = "INSERT INTO Quiz (id, title, numQuestions, quizDuration, courseId) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(insertQuizSql)) {
                 pstmt.setString(1, quizId);
                 pstmt.setString(2, title);
-                pstmt.setString(3, courseId);
+                pstmt.setInt(3, numQuestions);
+                pstmt.setInt(4, quizDuration);
+                pstmt.setString(5, courseId);
                 pstmt.executeUpdate();
             }
 

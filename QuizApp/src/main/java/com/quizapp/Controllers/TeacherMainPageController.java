@@ -23,12 +23,18 @@ import static com.quizapp.Actions.QuizListTeacherAction.openCourseListTeacher;
 
 public class TeacherMainPageController {
     public Button addCourses;
+    @FXML
+    private Button logoutButton; // Added logout button
 
     @FXML
     private ImageView logoImage;
 
     @FXML
     private ImageView userImage;
+    @FXML
+    private Button homeButton; // Added home button
+    @FXML
+    private Button userButton; // Added user button
 
     @FXML
     private GridPane numberGrid;
@@ -47,10 +53,32 @@ public class TeacherMainPageController {
 
         addCourses.setOnAction(e -> {
             try {
-                AddCourseController.openAddCoursePage();
+                AddCourseController.openAddCoursePage(addCourses); // Pass the addCourses button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+        });
+
+        logoutButton.setOnAction(e -> {
+            try {
+                com.quizapp.Actions.LoginAction.logout(logoutButton);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        homeButton.setOnAction(e -> {
+            try {
+                // Reload the current page (TeacherMain.fxml)
+                com.quizapp.Actions.LoginAction.openTeacherMain(homeButton);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        userButton.setOnAction(e -> {
+            // Placeholder for user profile action
+            System.out.println("User button clicked!");
         });
 
         currentCourses();
@@ -119,7 +147,7 @@ public class TeacherMainPageController {
                     Button checkFilesButton = new Button("Edit");
                     checkFilesButton.setOnAction(e -> {
                         try {
-                            openCourseListTeacher(courseId);
+                            openCourseListTeacher(courseId, checkFilesButton); // Pass the checkFilesButton
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -128,7 +156,7 @@ public class TeacherMainPageController {
                     Button addQuizButton = new Button("Add Quiz");
                     addQuizButton.setOnAction(e -> {
                         try {
-                            AddQuizPageController.openAddQuizPage(subject); // Pass the course name
+                            AddQuizPageController.openAddQuizPage(subject, addQuizButton); // Pass the course name and addQuizButton
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }

@@ -38,11 +38,13 @@ model Course {
 }
 
 model Quiz {
-  id        String     @id @default(uuid())
-  title     String
-  courseId  String
-  course    Course     @relation(fields: [courseId], references: [id])
-  questions Question[]
+  id           String     @id @default(uuid())
+  title        String
+  numQuestions Int
+  quizDuration Int // Duration in minutes
+  courseId     String
+  course       Course     @relation(fields: [courseId], references: [id])
+  questions    Question[]
 }
 
 model Question {

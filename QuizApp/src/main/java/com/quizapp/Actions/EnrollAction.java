@@ -94,7 +94,9 @@ public class EnrollAction {
         alert.showAndWait();
     }
 
-    public static void openEnrollPage() throws IOException {
+    public static void openEnrollPage(javafx.scene.control.Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
+
         FXMLLoader fxmlLoader = new FXMLLoader(EnrollPageController.class.getResource("/com/quizapp/Enroll.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(Objects.requireNonNull(EnrollPageController.class.getResource("/css/style.css")).toExternalForm());

@@ -118,7 +118,9 @@ public class QuizEditPageController {
         saveButton.setOnAction(e -> quizEditPageAction.updateQuizInDatabase(currentQuizId, quizTitle, questions));
     }
 
-    public static void openEditQuizPage(String quizId) throws IOException {
+    public static void openEditQuizPage(String quizId, javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
         currentQuizId = quizId;
         FXMLLoader loader = new FXMLLoader(App.class.getResource("/com/quizapp/QuizEdit.fxml"));
         Stage stage = new Stage();

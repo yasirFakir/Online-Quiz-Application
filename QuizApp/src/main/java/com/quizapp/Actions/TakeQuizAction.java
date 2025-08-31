@@ -39,7 +39,7 @@ public class TakeQuizAction {
             }
 
             // Check if leaderboard entry exists for the user
-            String checkLeaderboardSql = "SELECT score FROM LeaderboardEntry WHERE userId = ?";
+            String checkLeaderboardSql = "SELECT id, score FROM LeaderboardEntry WHERE userId = ?";
             int currentScore = 0;
             String leaderboardEntryId = null;
 
@@ -80,7 +80,9 @@ public class TakeQuizAction {
         }
     }
 
-    public static void openTakeQuizPage(String quizId) throws IOException {
+    public static void openTakeQuizPage(String quizId, javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
         TakeQuizAction.currentQuizId = quizId;
 
         FXMLLoader fxmlLoader = new FXMLLoader(TakeQuizPageController.class.getResource("/com/quizapp/TakeQuiz.fxml"));
