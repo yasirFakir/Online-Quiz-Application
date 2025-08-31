@@ -1,6 +1,7 @@
 package com.quizapp.Controllers;
 
-import com.quizapp.Actions.Leaderboard;
+import com.quizapp.Actions.EnrollAction;
+import com.quizapp.Actions.LoginAction;
 import com.quizapp.App;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,10 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.quizapp.Actions.Enroll.openEnrollPage;
-import static com.quizapp.Actions.Login.openStudentMain;
+public class LeaderboardPageController {
+    private final LoginAction loginAction = new LoginAction();
 
-public class LeaderboardPage extends Leaderboard {
     @FXML
     private Button home;
     @FXML
@@ -49,27 +49,21 @@ public class LeaderboardPage extends Leaderboard {
     private void initialize() {
 
         try {
-            // Initialize the logo
             logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(App.LOGO_PATH))));
-
-            // Set the user image (background)
             userImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(App.BACKGROUND_IMAGE_PATH))));
         } catch (NullPointerException e) {
             System.err.println("Resource not found: " + e.getMessage());
         }
 
-        // Set up table columns
         rankColumn.setCellValueFactory(new PropertyValueFactory<>("rank"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
 
-        // Populate the leaderboard with data from the file
         leaderboardTable.getItems().setAll(loadLeaderboardData());
 
         home.setOnAction(e -> {
             try {
-                openStudentMain();
-                closeCurrentWindow(home);
+                loginAction.openStudentMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -77,26 +71,20 @@ public class LeaderboardPage extends Leaderboard {
 
         enroll.setOnAction(e -> {
             try {
-                openEnrollPage();
-                closeCurrentWindow(enroll);
+                EnrollAction.openEnrollPage();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
     }
 
-    /**
-     * Reads leaderboard data from the leader.txt file.
-     *
-     * @return A list of Player objects.
-     */
     private List<Player> loadLeaderboardData() {
         List<Player> players = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(LEADERBOARD_FILE))) {
             String line;
             int rank = 1;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ", 2); // Split by the first space
+                String[] parts = line.split(" ", 2);
                 if (parts.length == 2) {
                     int score = Integer.parseInt(parts[0]);
                     String name = parts[1];
@@ -109,7 +97,6 @@ public class LeaderboardPage extends Leaderboard {
         return players;
     }
 
-    // Helper class for leaderboard data
     public static class Player {
         private final int rank;
         private final String name;

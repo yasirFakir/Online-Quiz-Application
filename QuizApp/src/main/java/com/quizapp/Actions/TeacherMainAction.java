@@ -1,15 +1,14 @@
 package com.quizapp.Actions;
 
-import com.quizapp.App;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class TeacherMain extends App {
+public class TeacherMainAction {
     public static void openAddCourses() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Login.class.getResource("/com/quizapp/Courses.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(TeacherMainAction.class.getResource("/com/quizapp/Courses.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage takeQuizStage = new Stage();
         takeQuizStage.setMaximized(true);
@@ -17,6 +16,4 @@ public class TeacherMain extends App {
         takeQuizStage.setScene(scene);
         takeQuizStage.show();
     }
-
-
 }

@@ -1,19 +1,18 @@
 package com.quizapp.Actions;
 
 import com.quizapp.App;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
-public class Login extends  App{
+public class LoginAction {
 
     // Handle the login logic
     public void handleLoginAction(String username, String password, Label messageLabel, Button loginButton) throws IOException {
@@ -49,8 +48,8 @@ public class Login extends  App{
     }
 
     // Method to open the sign-up window
-    public static void openTeacherMain() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Login.class.getResource("/com/quizapp/TeacherMain.fxml"));
+    public void openTeacherMain() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/TeacherMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
@@ -62,8 +61,8 @@ public class Login extends  App{
 
 
     // Method to open the sign-up window
-    public static void openSignUpWindow() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Login.class.getResource("/com/quizapp/SignUpPageUI.fxml"));
+    public void openSignUpWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/SignUpPageUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
@@ -73,9 +72,9 @@ public class Login extends  App{
         signUpStage.show(); // Open sign-up window
     }
 
-    public static void openStudentMain() throws IOException {
+    public void openStudentMain() throws IOException {
         // Ensure the path to FXML is correct and matches runtime packaging
-        FXMLLoader fxmlLoader = new FXMLLoader(Login.class.getResource("/com/quizapp/StudentMain.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/StudentMain.fxml"));
 
         // Load the FXML file and create the scene
         Scene scene = new Scene(fxmlLoader.load());
@@ -104,15 +103,15 @@ public class Login extends  App{
                     return true; // Valid credentials
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + filePath);
-            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
         }
 
         return false; // Invalid credentials
     }
-}
 
+    public void closeCurrentWindow(Button button) {
+        Stage stage = (Stage) button.getScene().getWindow();
+        stage.close();  // Close the current stage (login window)
+    }
+}

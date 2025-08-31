@@ -1,7 +1,6 @@
 package com.quizapp.Controllers;
 
 import com.quizapp.App;
-
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,54 +11,45 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.quizapp.Controllers.AddCourse.openAddCoursePage;
-import static com.quizapp.Controllers.QuizListTeacherPage.openCourseListTeacher;
+import static com.quizapp.Actions.QuizListTeacherAction.openCourseListTeacher;
 
-public class TeacherMainPage extends com.quizapp.Actions.TeacherMain{
+public class TeacherMainPageController {
     public Button addCourses;
 
     @FXML
-    private ImageView logoImage; // Ensure this matches the FXML fx:id
+    private ImageView logoImage;
 
     @FXML
-    private ImageView userImage; // Fixed spelling to match FXML fx:id
+    private ImageView userImage;
 
     @FXML
     private GridPane numberGrid;
 
-
     private static final String LOGO_PATH = "/images/logo.png";
     private static final String BACKGROUND_IMAGE_PATH = "/images/temp.jpg";
-    private String courseDir = "src/main/resources/Courses/";
     private String filename = "src/main/resources/teacherInfo/" + App.username + ".csv";
-
 
     @FXML
     public void initialize() {
         try {
-            // Initialize the logo
             logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(LOGO_PATH))));
-
-            // Set the user image (background)
             userImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(BACKGROUND_IMAGE_PATH))));
         } catch (NullPointerException e) {
             System.err.println("Resource not found: " + e.getMessage());
         }
 
-        addCourses.setOnAction(e ->{
+        addCourses.setOnAction(e -> {
             try {
-                openAddCoursePage();
+                AddCourseController.openAddCoursePage();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
-
 
         currentCourses(filename);
     }
@@ -70,29 +60,24 @@ public class TeacherMainPage extends com.quizapp.Actions.TeacherMain{
             int row = 0;
             int column = 0;
 
-            // Create a GridPane to hold the course squares
             GridPane gridPane = new GridPane();
-            gridPane.setHgap(10); // Horizontal spacing between squares
-            gridPane.setVgap(10); // Vertical spacing between squares
-            gridPane.setPadding(new Insets(100)); // Padding around the grid
+            gridPane.setHgap(10);
+            gridPane.setVgap(10);
+            gridPane.setPadding(new Insets(100));
             gridPane.setAlignment(Pos.TOP_LEFT);
 
-            // Reading the CSV file line by line, skipping the header
             while ((line = reader.readLine()) != null) {
-                // Split the line to extract details
                 String[] courseData = line.split(",");
                 String subject = courseData[0];
                 String description = courseData[1];
                 String enrolled = courseData[2];
-                String quizFileName = courseData[3]; // File name for the quiz
+                String quizFileName = courseData[3];
 
-                // Create a VBox for each course (to display as a square)
-                VBox courseBox = new VBox(10); // Add some spacing between elements
+                VBox courseBox = new VBox(10);
                 courseBox.setAlignment(Pos.CENTER);
                 courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
-                courseBox.setPrefWidth(200); // Set a preferred width for consistent size
+                courseBox.setPrefWidth(200);
 
-                // Add course details to the VBox
                 Label subjectLabel = new Label(subject);
                 subjectLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
@@ -102,32 +87,25 @@ public class TeacherMainPage extends com.quizapp.Actions.TeacherMain{
                 Label enrolledLabel = new Label("Enrolled: " + enrolled);
                 enrolledLabel.setStyle("-fx-font-size: 12px;");
 
-                // Add a button to check files starting with "common"
                 Button checkFilesButton = new Button("Edit");
                 checkFilesButton.setOnAction(e -> {
                     try {
-                        // Open the Quiz Editor dynamically with the quiz file name
                         openCourseListTeacher(quizFileName);
-//                        quizEditPage.openQuizEditor(common + "quiz1.csv"); // Use dynamic file path
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                 });
-                // Add all elements to the course box
                 courseBox.getChildren().addAll(subjectLabel, descriptionLabel, enrolledLabel, checkFilesButton);
 
-                // Add the VBox to the GridPane
                 gridPane.add(courseBox, column, row);
 
-                // Update column and row for the next course
                 column++;
-                if (column == 4) { // Move to the next row after 4 columns
+                if (column == 4) {
                     column = 0;
                     row++;
                 }
             }
 
-            // Add the gridPane to the main layout (numberGrid is assumed to be a container)
             numberGrid.getChildren().clear();
             numberGrid.getChildren().add(gridPane);
         } catch (IOException e) {

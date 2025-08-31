@@ -1,22 +1,27 @@
 package com.quizapp.Controllers;
 
-import com.quizapp.Actions.Enroll;
+import com.quizapp.Actions.EnrollAction;
+import com.quizapp.Actions.LeaderboardAction;
+import com.quizapp.Actions.LoginAction;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Objects;
 
-import static com.quizapp.Actions.Login.openStudentMain;
-import static com.quizapp.Controllers.LeaderboardPage.openLeaderBoard;
+public class EnrollPageController {
 
-public class EnrollPage extends Enroll {
+    private final EnrollAction enrollAction = new EnrollAction();
+    private final LoginAction loginAction = new LoginAction();
 
     @FXML
     private Button home;
@@ -36,7 +41,6 @@ public class EnrollPage extends Enroll {
     @FXML
     private void initialize() {
         try {
-            // Load logo and user images
             logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResource(LOGO_PATH)).toExternalForm()));
             userImage.setImage(new Image(Objects.requireNonNull(getClass().getResource(USER_IMAGE_PATH)).toExternalForm()));
         } catch (Exception e) {
@@ -45,8 +49,7 @@ public class EnrollPage extends Enroll {
 
         leaderBoard.setOnAction(e -> {
             try {
-                openLeaderBoard();
-                closeCurrentWindow(leaderBoard);
+                LeaderboardAction.openLeaderBoard();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -54,14 +57,12 @@ public class EnrollPage extends Enroll {
 
         home.setOnAction(e -> {
             try {
-                openStudentMain();
-                closeCurrentWindow(home);
+                loginAction.openStudentMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
 
-        // Populate the course grid
         populateCourses(COURSES_FILE);
     }
 
@@ -73,7 +74,6 @@ public class EnrollPage extends Enroll {
             int row = 0;
             int column = 0;
 
-            // Configure the course grid layout
             courseGrid.getChildren().clear();
             courseGrid.setHgap(10);
             courseGrid.setVgap(10);
@@ -97,5 +97,25 @@ public class EnrollPage extends Enroll {
         } catch (IOException | NullPointerException e) {
             System.err.println("Error loading courses: " + e.getMessage());
         }
+    }
+
+    private VBox createCourseBox(String courseName, String description) {
+        VBox courseBox = new VBox(10);
+        courseBox.setAlignment(Pos.CENTER);
+        courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
+        courseBox.setPrefWidth(200);
+
+        Label nameLabel = new Label(courseName);
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label descriptionLabel = new Label(description);
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setStyle("-fx-font-size: 12px;");
+
+        Button enrollButton = new Button("Enroll");
+        enrollButton.setOnAction(e -> enrollAction.enrollCourse(courseName, description));
+
+        courseBox.getChildren().addAll(nameLabel, descriptionLabel, enrollButton);
+        return courseBox;
     }
 }

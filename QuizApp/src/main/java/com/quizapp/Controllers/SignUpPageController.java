@@ -1,16 +1,20 @@
 package com.quizapp.Controllers;
 
-import com.quizapp.Actions.SignUp;
+import com.quizapp.Actions.SignUpAction;
 import com.quizapp.App;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.util.Objects;
 
-public class signUpPage {
+public class SignUpPageController {
+
+    private final SignUpAction signUpAction = new SignUpAction();
 
     public ImageView mainImage;
     @FXML
@@ -33,17 +37,13 @@ public class signUpPage {
 
     @FXML
     public void initialize() {
-        // Load the logo image
         logoImage.setImage(new Image(getClass().getResourceAsStream(App.LOGO_PATH)));
 
-        // Initialize the main image and resize it dynamically
         Image mainBgImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(App.BACKGROUND_Main_IMAGE_PATH)));
         mainImage.setImage(mainBgImage);
 
-        // Add items to the role combo box
         roleComboBox.getItems().addAll("Teacher", "Student");
 
-        // Set up key event handlers to move focus to the next field on ENTER key press
         fullNameField.setOnKeyPressed(event -> {
             if (event.getCode().toString().equals("ENTER")) {
                 nickNameField.requestFocus();
@@ -74,12 +74,11 @@ public class signUpPage {
             }
         });
 
-        // Set up sign-up action (optional: custom class or lambda)
         signUpButton.setOnAction(event -> handleSignUp());
 
         signInButton.setOnAction(e -> {
             try {
-                SignUp.start();
+                SignUpAction.start();
                 closeCurrentWindow();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -95,22 +94,68 @@ public class signUpPage {
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
-        SignUp signUp = new SignUp(
-                fullNameField,
-                nickNameField,
-                usernameField,
-                passwordField,
-                confirmPasswordField,
-                signUpButton,
-                messageLabel,
-                roleComboBox
-        );
-        signUp.setUpActions();
+        if (fullName.isEmpty()) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please enter your full name.");
+            fullNameField.requestFocus();
+            return;
+        }
+
+        if (nickName.isEmpty()) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please enter your nickname.");
+            nickNameField.requestFocus();
+            return;
+        }
+
+        if (username.isEmpty()) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please enter a username.");
+            usernameField.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please enter a password.");
+            passwordField.requestFocus();
+            return;
+        }
+
+        if (confirmPassword.isEmpty()) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please confirm your password.");
+            confirmPasswordField.requestFocus();
+            return;
+        }
+
+        if (role == null) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Please select a role.");
+            roleComboBox.requestFocus();
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("Passwords do not match.");
+            confirmPasswordField.requestFocus();
+            return;
+        }
+
+        boolean isSignedUp = signUpAction.handleSignUpAction(fullName, nickName, username, password, confirmPassword, role);
+
+        if (isSignedUp) {
+            messageLabel.setTextFill(Color.GREEN);
+            messageLabel.setText("Sign-up successful! You can now log in.");
+        } else {
+            messageLabel.setTextFill(Color.RED);
+            messageLabel.setText("An error occurred. Please try again.");
+        }
     }
 
     public void closeCurrentWindow() {
         Stage stage = (Stage) signInButton.getScene().getWindow();
-        stage.close();  // Close the current stage (sign-up window)
+        stage.close();
     }
 }
-

@@ -1,51 +1,16 @@
 package com.quizapp.Actions;
 
 import com.quizapp.App;
-import com.quizapp.Controllers.EnrollPage;
+import com.quizapp.Controllers.EnrollPageController;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.Objects;
 
-public class Enroll extends App{
-    protected VBox createCourseBox(String courseName, String description) {
-        VBox courseBox = new VBox(10);
-        courseBox.setAlignment(Pos.CENTER);
-        courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
-        courseBox.setPrefWidth(200);
-
-        Label nameLabel = new Label(courseName);
-        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-
-        Label descriptionLabel = new Label(description);
-        descriptionLabel.setWrapText(true);
-        descriptionLabel.setStyle("-fx-font-size: 12px;");
-
-        Button enrollButton = new Button("Enroll");
-
-
-
-        enrollButton.setOnAction(e -> enrollCourse(courseName, description));
-
-        courseBox.getChildren().addAll(nameLabel, descriptionLabel, enrollButton);
-        return courseBox;
-    }
-    private String extractFaculty(String courseName) {
-        try {
-            String[] parts = courseName.split("by", 2);
-            return (parts.length == 2) ? parts[1].trim().replace("_", " ") : "";
-        } catch (Exception e) {
-            System.err.println("Error extracting faculty from courseName: " + e.getMessage());
-            return "";
-        }
-    }
+public class EnrollAction {
 
     public void enrollCourse(String courseFileName, String courseInfo) {
         boolean isCourseFound = false;
@@ -64,10 +29,9 @@ public class Enroll extends App{
             }
         } catch (FileNotFoundException e) {
             System.err.println("User file not found: " + userFilePath + ". Assuming no prior enrollment.");
-            // Continue to enroll since the file does not exist.
         } catch (IOException e) {
             System.err.println("Error reading user file: " + e.getMessage());
-            return; // Exit to prevent further errors
+            return;
         }
 
         if (!isCourseFound) {
@@ -83,7 +47,6 @@ public class Enroll extends App{
             }
         }
     }
-
 
     private void updateCourseEnrollmentCount(String courseFileName) {
         String faculty;
@@ -132,9 +95,9 @@ public class Enroll extends App{
     }
 
     public static void openEnrollPage() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(EnrollPage.class.getResource("/com/quizapp/Enroll.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(EnrollPageController.class.getResource("/com/quizapp/Enroll.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        scene.getStylesheets().add(Objects.requireNonNull(EnrollPage.class.getResource("/css/style.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(EnrollPageController.class.getResource("/css/style.css")).toExternalForm());
 
         Stage enrollStage = new Stage();
         enrollStage.setTitle("Enroll in a Course");

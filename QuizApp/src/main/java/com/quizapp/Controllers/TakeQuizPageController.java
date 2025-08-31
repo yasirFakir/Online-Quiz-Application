@@ -1,33 +1,31 @@
 package com.quizapp.Controllers;
 
-import com.quizapp.App;
+import com.quizapp.Actions.TakeQuizAction;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class TakeQuizPage extends com.quizapp.Actions.TakeQuiz{
+public class TakeQuizPageController {
+
+    private final TakeQuizAction takeQuizAction = new TakeQuizAction();
 
     @FXML
-    private GridPane questionGrid; // Grid for displaying questions and options
+    private GridPane questionGrid;
     @FXML
-    private Button submitButton; // Button for submitting the quiz
+    private Button submitButton;
 
+    private List<Question> questions = new ArrayList<>();
+    private Map<Integer, ToggleGroup> toggleGroups = new HashMap<>();
 
-    private List<Question> questions = new ArrayList<>(); // List to store questions and options
-    private Map<Integer, ToggleGroup> toggleGroups = new HashMap<>(); // Toggle groups for radio buttons
-    private final String fileName = "src/main/resources/studentInfo/" + App.username + ".csv";
-    private final String leaderBoard = "src/main/resources/leaderboard/leader.txt";
     @FXML
     public void initialize() {
-        System.out.println(filePath);
         try {
             loadQuestionsFromFile();
             displayQuestions();
@@ -37,70 +35,58 @@ public class TakeQuizPage extends com.quizapp.Actions.TakeQuiz{
         }
     }
 
-    // Method to load questions from the CSV file
     private void loadQuestionsFromFile() throws IOException {
-        File file = new File(filePath);
+        File file = new File(TakeQuizAction.filePath);
         if (!file.exists()) {
-            System.out.println("Quiz file not found: " + filePath);
             return;
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String title = reader.readLine(); // Read the first line (title, ignore for now)
+            reader.readLine(); // Skip title
             String line;
 
-            // Parse questions from the file
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 5); // Split line into question, answer, and options
-                if (parts.length < 5) continue; // Skip invalid lines
+                String[] parts = line.split(",", 5);
+                if (parts.length < 5) continue;
 
                 String text = parts[0];
                 String correctAnswer = parts[1];
                 List<String> options = Arrays.asList(parts[1], parts[2], parts[3], parts[4]);
 
-                // Randomize options
                 Collections.shuffle(options);
 
-                // Create and store question
                 questions.add(new Question(text, correctAnswer, options));
             }
         }
     }
 
-    // Method to display questions and options in the GridPane
     private void displayQuestions() {
         questionGrid.getChildren().clear();
 
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
 
-            // Display question text in one row
             Label questionLabel = new Label((i + 1) + ". " + question.getText());
-            questionGrid.add(questionLabel, 0, i * 2); // Add to the first column of the current row
+            questionGrid.add(questionLabel, 0, i * 2);
 
-            // Create a ToggleGroup for the options
             ToggleGroup group = new ToggleGroup();
             toggleGroups.put(i, group);
 
-            // Create an HBox for the options to arrange them horizontally
-            HBox optionsBox = new HBox(10); // Add spacing of 10 between options
-            for (int j = 0; j < question.getOptions().size(); j++) {
-                RadioButton optionButton = new RadioButton(question.getOptions().get(j));
+            HBox optionsBox = new HBox(10);
+            for (String option : question.getOptions()) {
+                RadioButton optionButton = new RadioButton(option);
                 optionButton.setToggleGroup(group);
-                optionsBox.getChildren().add(optionButton); // Add option button to the HBox
+                optionsBox.getChildren().add(optionButton);
             }
 
-            // Add the options HBox to the next row
-            questionGrid.add(optionsBox, 0, i * 2 + 1, 2, 1); // Span across 2 columns
+            questionGrid.add(optionsBox, 0, i * 2 + 1, 2, 1);
         }
     }
 
-    // Method to set up the submit button action
     private void setupSubmitAction() {
         submitButton.setOnAction(e -> {
             int correctCount = 0;
 
-            // Calculate the score
             for (int i = 0; i < questions.size(); i++) {
                 ToggleGroup group = toggleGroups.get(i);
                 if (group != null && group.getSelectedToggle() != null) {
@@ -111,28 +97,24 @@ public class TakeQuizPage extends com.quizapp.Actions.TakeQuiz{
                 }
             }
 
-            // Calculate marks out of 100
             double score = ((double) correctCount / questions.size()) * 100;
 
-            // Display result
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Quiz Results");
             alert.setHeaderText("Quiz Completed!");
             alert.setContentText("You scored: " + String.format("%.2f", score) + " out of 100");
             alert.showAndWait();
 
-            updateQuizTakenCount(courseName);
+            takeQuizAction.updateQuizTakenCount(TakeQuizAction.courseName);
 
             try {
-                updateLeaderFile((int) score);
+                takeQuizAction.updateLeaderFile((int) score);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-
         });
     }
 
-    // Inner class to represent a Question
     private static class Question {
         private final String text;
         private final String correctAnswer;
@@ -156,6 +138,4 @@ public class TakeQuizPage extends com.quizapp.Actions.TakeQuiz{
             return options;
         }
     }
-    // Method to open the TakeQuiz page
-
 }

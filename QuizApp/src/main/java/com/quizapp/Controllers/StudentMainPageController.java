@@ -1,8 +1,6 @@
 package com.quizapp.Controllers;
 
-import com.quizapp.Actions.StudentMain;
 import com.quizapp.App;
-
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,24 +11,23 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.quizapp.Controllers.EnrollPage.openEnrollPage;
-import static com.quizapp.Controllers.LeaderboardPage.openLeaderBoard;
-import static com.quizapp.Controllers.QuizListStudentPage.openCourseListStudent;
+import static com.quizapp.Actions.EnrollAction.openEnrollPage;
+import static com.quizapp.Actions.LeaderboardAction.openLeaderBoard;
+import static com.quizapp.Actions.QuizListStudentAction.openCourseListStudent;
 
-public class StudentMainPage extends StudentMain {
+public class StudentMainPageController {
     @FXML
     private Button enroll;
     @FXML
     private Button leaderBoard;
     @FXML
-    private GridPane courseGrid; // Use courseGrid defined in FXML
+    private GridPane courseGrid;
     @FXML
     private ImageView logoImage;
     @FXML
@@ -41,9 +38,7 @@ public class StudentMainPage extends StudentMain {
     @FXML
     public void initialize(){
         try {
-            // Initialize the logo
             logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(App.LOGO_PATH))));
-            // Set the user image (background)
             userImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(App.BACKGROUND_IMAGE_PATH))));
         } catch (NullPointerException e) {
             System.err.println("Resource not found: " + e.getMessage());
@@ -54,7 +49,7 @@ public class StudentMainPage extends StudentMain {
         enroll.setOnAction(e -> {
             try {
                 openEnrollPage();
-                closeCurrentWindow(enroll);
+                // closeCurrentWindow(enroll);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -63,7 +58,7 @@ public class StudentMainPage extends StudentMain {
         leaderBoard.setOnAction(e -> {
             try {
                 openLeaderBoard();
-                closeCurrentWindow(leaderBoard);
+                // closeCurrentWindow(leaderBoard);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -76,7 +71,6 @@ public class StudentMainPage extends StudentMain {
             int row = 0;
             int column = 0;
 
-            // Clear the existing content in the courseGrid
             courseGrid.getChildren().clear();
             courseGrid.setHgap(10);
             courseGrid.setVgap(10);
@@ -84,7 +78,6 @@ public class StudentMainPage extends StudentMain {
             courseGrid.setAlignment(Pos.TOP_LEFT);
 
             while ((line = reader.readLine()) != null) {
-                // Split the line to extract details
                 String[] courseData = line.split(",");
                 String subject = courseData[0];
                 String faculty = "";
@@ -92,7 +85,6 @@ public class StudentMainPage extends StudentMain {
                 int quizTaken = Integer.parseInt(courseData[2]);
                 String quizFileName = courseData[0];
 
-                // Create a VBox for each course
                 VBox courseBox = new VBox(20);
                 courseBox.setAlignment(Pos.CENTER);
                 courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
@@ -100,9 +92,9 @@ public class StudentMainPage extends StudentMain {
                 courseBox.setPrefWidth(200);
 
                 try {
-                    String[] parts = subject.split("by", 2); // Split into at most 2 parts
+                    String[] parts = subject.split("by", 2);
                     if (parts.length == 2) {
-                        subject = parts[0].trim().replace("_", " "); // Trim to remove extra spaces
+                        subject = parts[0].trim().replace("_", " ");
                         faculty = parts[1].trim().replace("_", " ");
                     } else {
                         throw new IllegalArgumentException("String does not contain 'by' or is not in the expected format.");
@@ -118,10 +110,9 @@ public class StudentMainPage extends StudentMain {
                 Label facultyLabel = new Label(faculty);
                 facultyLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-                // Use Text for description with wrapping enabled
                 Text descriptionText = new Text(description);
                 descriptionText.setStyle("-fx-font-size: 12px;");
-                descriptionText.setWrappingWidth(300); // Wrap text within the courseBox's width
+                descriptionText.setWrappingWidth(300);
 
                 Label enrolledLabel = new Label("Quiz Taken: " + quizTaken);
                 enrolledLabel.setStyle("-fx-font-size: 12px;");
@@ -139,11 +130,10 @@ public class StudentMainPage extends StudentMain {
 
                 courseBox.getChildren().addAll(subjectLabel, facultyLabel, descriptionText, enrolledLabel, takeQuizButton);
 
-                // Add the course box to the grid
                 courseGrid.add(courseBox, column, row);
 
                 column++;
-                if (column == 3) { // Move to the next row after 4 columns
+                if (column == 3) {
                     column = 0;
                     row++;
                 }
