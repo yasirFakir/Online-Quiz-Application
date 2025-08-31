@@ -2,6 +2,7 @@ package com.quizapp.Controllers;
 
 import com.quizapp.Actions.QuizEditPageAction;
 import com.quizapp.App;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,7 +16,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Consumer; // Added for functional interface
 
 public class QuizEditPageController {
 
@@ -30,18 +36,36 @@ public class QuizEditPageController {
 
     private String quizTitle = "";
     private List<QuizEditPageAction.Question> questions;
-    private static String filePath;
+    private static String currentQuizId; // To store the ID of the currently selected quiz
 
     @FXML
     public void initialize() {
-        if (filePath != null && !filePath.trim().isEmpty()) {
-            questions = quizEditPageAction.loadQuizData(filePath);
+        if (currentQuizId != null && !currentQuizId.trim().isEmpty()) {
+            questions = quizEditPageAction.loadQuizData(currentQuizId);
+            quizTitle = getQuizTitle(currentQuizId);
+
             displayTitle();
             displayQuestions();
             setupSaveAction();
         } else {
-            System.out.println("File path not provided.");
+            System.out.println("Quiz ID not provided.");
         }
+    }
+
+    private String getQuizTitle(String quizId) {
+        String sql = "SELECT title FROM Quiz WHERE id = ?";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, quizId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("title");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching quiz title: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return ""; // Placeholder or throw an exception
     }
 
     private void displayTitle() {
@@ -83,19 +107,19 @@ public class QuizEditPageController {
         }
     }
 
-    private HBox createEditableOption(String prefix, String value, QuizEditPageAction.Setter setter) {
+    private HBox createEditableOption(String prefix, String value, Consumer<String> setter) {
         Label label = new Label(prefix);
         TextField optionField = new TextField(value);
-        optionField.textProperty().addListener((observable, oldValue, newValue) -> setter.set(newValue));
+        optionField.textProperty().addListener((observable, oldValue, newValue) -> setter.accept(newValue));
         return new HBox(5, label, optionField);
     }
 
     private void setupSaveAction() {
-        saveButton.setOnAction(e -> quizEditPageAction.saveQuizToFile(filePath, quizTitle, questions));
+        saveButton.setOnAction(e -> quizEditPageAction.updateQuizInDatabase(currentQuizId, quizTitle, questions));
     }
 
-    public static void openEditQuizPage(String file) throws IOException {
-        filePath = file;
+    public static void openEditQuizPage(String quizId) throws IOException {
+        currentQuizId = quizId;
         FXMLLoader loader = new FXMLLoader(App.class.getResource("/com/quizapp/QuizEdit.fxml"));
         Stage stage = new Stage();
         stage.setScene(new Scene(loader.load()));

@@ -25,7 +25,8 @@ public class AddQuizPageController {
     private GridPane questionGrid;
     @FXML
     private Button saveButton;
-    private static String filePath;
+
+    private static String currentCourseName; // To store the name of the currently selected course
 
     private List<AddQuizPageAction.Question> questions = new ArrayList<>();
 
@@ -37,7 +38,7 @@ public class AddQuizPageController {
             addNewQuestion(i);
         }
 
-        saveButton.setOnAction(e -> addQuizPageAction.saveQuizToFile(filePath, quizTitleField.getText().trim(), questions));
+        saveButton.setOnAction(e -> addQuizPageAction.saveQuizToDatabase(currentCourseName, quizTitleField.getText().trim(), questions));
     }
 
     private void addNewQuestion(int index) {
@@ -68,8 +69,8 @@ public class AddQuizPageController {
         option4Field.textProperty().addListener((obs, oldVal, newVal) -> question.setOption4(newVal));
     }
 
-    public static void openAddQuizPage(String quizDir) throws IOException {
-        filePath = quizDir;
+    public static void openAddQuizPage(String courseName) throws IOException {
+        currentCourseName = courseName;
         FXMLLoader fxmlLoader = new FXMLLoader(AddQuizPageController.class.getResource("/com/quizapp/AddQuiz.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage addQuizStage = new Stage();

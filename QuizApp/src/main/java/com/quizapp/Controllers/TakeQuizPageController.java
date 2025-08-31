@@ -1,15 +1,16 @@
 package com.quizapp.Controllers;
 
 import com.quizapp.Actions.TakeQuizAction;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class TakeQuizPageController {
@@ -26,37 +27,36 @@ public class TakeQuizPageController {
 
     @FXML
     public void initialize() {
-        try {
-            loadQuestionsFromFile();
-            displayQuestions();
-            setupSubmitAction();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadQuestionsFromDatabase();
+        displayQuestions();
+        setupSubmitAction();
     }
 
-    private void loadQuestionsFromFile() throws IOException {
-        File file = new File(TakeQuizAction.filePath);
-        if (!file.exists()) {
-            return;
-        }
+    private void loadQuestionsFromDatabase() {
+        String sql = "SELECT text, correctAnswer, options FROM Question WHERE quizId = ?";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.readLine(); // Skip title
-            String line;
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 5);
-                if (parts.length < 5) continue;
+            pstmt.setString(1, TakeQuizAction.currentQuizId);
+            ResultSet rs = pstmt.executeQuery();
 
-                String text = parts[0];
-                String correctAnswer = parts[1];
-                List<String> options = Arrays.asList(parts[1], parts[2], parts[3], parts[4]);
+            while (rs.next()) {
+                String text = rs.getString("text");
+                String correctAnswer = rs.getString("correctAnswer");
+                String optionsString = rs.getString("options");
+
+                List<String> options = new ArrayList<>();
+                options.add(correctAnswer); // Add correct answer first
+                options.addAll(Arrays.asList(optionsString.split(","))); // Add other options
 
                 Collections.shuffle(options);
 
                 questions.add(new Question(text, correctAnswer, options));
             }
+        } catch (SQLException e) {
+            System.err.println("Database error loading questions: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -105,13 +105,8 @@ public class TakeQuizPageController {
             alert.setContentText("You scored: " + String.format("%.2f", score) + " out of 100");
             alert.showAndWait();
 
-            takeQuizAction.updateQuizTakenCount(TakeQuizAction.courseName);
-
-            try {
-                takeQuizAction.updateLeaderFile((int) score);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            // Update leaderboard
+            takeQuizAction.updateLeaderboardScore((int) score);
         });
     }
 

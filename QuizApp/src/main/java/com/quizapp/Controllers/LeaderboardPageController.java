@@ -3,6 +3,7 @@ package com.quizapp.Controllers;
 import com.quizapp.Actions.EnrollAction;
 import com.quizapp.Actions.LoginAction;
 import com.quizapp.App;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -11,10 +12,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +44,6 @@ public class LeaderboardPageController {
     private ImageView logoImage;
     @FXML
     private ImageView userImage;
-
-    private static final String LEADERBOARD_FILE = "src/main/resources/leaderboard/leader.txt";
 
     @FXML
     private void initialize() {
@@ -80,19 +80,24 @@ public class LeaderboardPageController {
 
     private List<Player> loadLeaderboardData() {
         List<Player> players = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(LEADERBOARD_FILE))) {
-            String line;
-            int rank = 1;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ", 2);
-                if (parts.length == 2) {
-                    int score = Integer.parseInt(parts[0]);
-                    String name = parts[1];
-                    players.add(new Player(rank++, name, score));
+        Connection conn = null;
+        try {
+            conn = DatabaseUtil.getConnection();
+            String sql = "SELECT u.username, l.score FROM LeaderboardEntry l JOIN User u ON l.userId = u.id ORDER BY l.score DESC";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                ResultSet rs = pstmt.executeQuery();
+                int rank = 1;
+                while (rs.next()) {
+                    String username = rs.getString("username");
+                    int score = rs.getInt("score");
+                    players.add(new Player(rank++, username, score));
                 }
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error reading leaderboard data: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Database error loading leaderboard data: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            DatabaseUtil.closeConnection(conn);
         }
         return players;
     }

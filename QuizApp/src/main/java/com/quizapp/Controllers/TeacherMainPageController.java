@@ -1,6 +1,7 @@
 package com.quizapp.Controllers;
 
 import com.quizapp.App;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,9 +12,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
 
 import static com.quizapp.Actions.QuizListTeacherAction.openCourseListTeacher;
@@ -32,7 +35,6 @@ public class TeacherMainPageController {
 
     private static final String LOGO_PATH = "/images/logo.png";
     private static final String BACKGROUND_IMAGE_PATH = "/images/temp.jpg";
-    private String filename = "src/main/resources/teacherInfo/" + App.username + ".csv";
 
     @FXML
     public void initialize() {
@@ -51,65 +53,125 @@ public class TeacherMainPageController {
             }
         });
 
-        currentCourses(filename);
+        currentCourses();
     }
 
-    private void currentCourses(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            int row = 0;
-            int column = 0;
+    private void currentCourses() {
+        Connection conn = null;
+        try {
+            conn = DatabaseUtil.getConnection();
 
-            GridPane gridPane = new GridPane();
-            gridPane.setHgap(10);
-            gridPane.setVgap(10);
-            gridPane.setPadding(new Insets(100));
-            gridPane.setAlignment(Pos.TOP_LEFT);
-
-            while ((line = reader.readLine()) != null) {
-                String[] courseData = line.split(",");
-                String subject = courseData[0];
-                String description = courseData[1];
-                String enrolled = courseData[2];
-                String quizFileName = courseData[3];
-
-                VBox courseBox = new VBox(10);
-                courseBox.setAlignment(Pos.CENTER);
-                courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
-                courseBox.setPrefWidth(200);
-
-                Label subjectLabel = new Label(subject);
-                subjectLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-
-                Label descriptionLabel = new Label(description);
-                descriptionLabel.setStyle("-fx-font-size: 12px;");
-
-                Label enrolledLabel = new Label("Enrolled: " + enrolled);
-                enrolledLabel.setStyle("-fx-font-size: 12px;");
-
-                Button checkFilesButton = new Button("Edit");
-                checkFilesButton.setOnAction(e -> {
-                    try {
-                        openCourseListTeacher(quizFileName);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                });
-                courseBox.getChildren().addAll(subjectLabel, descriptionLabel, enrolledLabel, checkFilesButton);
-
-                gridPane.add(courseBox, column, row);
-
-                column++;
-                if (column == 4) {
-                    column = 0;
-                    row++;
+            // Get teacher ID
+            String teacherId = null;
+            String getTeacherIdSql = "SELECT id FROM User WHERE username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(getTeacherIdSql)) {
+                pstmt.setString(1, App.username);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    teacherId = rs.getString("id");
                 }
             }
 
-            numberGrid.getChildren().clear();
-            numberGrid.getChildren().add(gridPane);
-        } catch (IOException e) {
+            if (teacherId == null) {
+                System.err.println("Teacher not found: " + App.username);
+                return;
+            }
+
+            String sql = "SELECT id, name, description FROM Course WHERE teacherId = ?";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, teacherId);
+                ResultSet rs = pstmt.executeQuery();
+
+                int row = 0;
+                int column = 0;
+
+                GridPane gridPane = new GridPane();
+                gridPane.setHgap(10);
+                gridPane.setVgap(10);
+                gridPane.setPadding(new Insets(100));
+                gridPane.setAlignment(Pos.TOP_LEFT);
+
+                while (rs.next()) {
+                    String courseId = rs.getString("id");
+                    String subject = rs.getString("name");
+                    String description = rs.getString("description");
+
+                    // You might want to query the number of enrolled students for this course
+                    // or the number of quizzes, if that's what 'enrolled' represented.
+                    // For now, we'll just display a placeholder or omit it if not directly available.
+                    // int enrolledCount = getEnrolledStudentCount(courseId); // Example
+
+                    VBox courseBox = new VBox(10);
+                    courseBox.setAlignment(Pos.CENTER);
+                    courseBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
+                    courseBox.setPrefWidth(200);
+
+                    Label subjectLabel = new Label(subject.replace("_", " "));
+                    subjectLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+                    Label descriptionLabel = new Label(description);
+                    descriptionLabel.setStyle("-fx-font-size: 12px;");
+
+                    // Label enrolledLabel = new Label("Enrolled: " + enrolledCount); // Example
+                    // enrolledLabel.setStyle("-fx-font-size: 12px;");
+
+                    Button checkFilesButton = new Button("Edit");
+                    checkFilesButton.setOnAction(e -> {
+                        try {
+                            openCourseListTeacher(courseId);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+
+                    Button addQuizButton = new Button("Add Quiz");
+                    addQuizButton.setOnAction(e -> {
+                        try {
+                            AddQuizPageController.openAddQuizPage(subject); // Pass the course name
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+
+                    courseBox.getChildren().addAll(subjectLabel, descriptionLabel, checkFilesButton, addQuizButton);
+
+                    gridPane.add(courseBox, column, row);
+
+                    column++;
+                    if (column == 4) {
+                        column = 0;
+                        row++;
+                    }
+                }
+
+                numberGrid.getChildren().clear();
+                numberGrid.getChildren().add(gridPane);
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error loading teacher courses: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            DatabaseUtil.closeConnection(conn);
         }
     }
+
+    // Example method to get enrolled student count (can be implemented if needed)
+    /*
+    private int getEnrolledStudentCount(String courseId) {
+        String sql = "SELECT COUNT(*) FROM Enrollment WHERE courseId = ?";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, courseId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting enrolled student count: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    */
 }

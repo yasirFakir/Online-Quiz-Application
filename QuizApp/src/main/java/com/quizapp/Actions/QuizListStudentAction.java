@@ -1,55 +1,45 @@
 package com.quizapp.Actions;
 
 import com.quizapp.App;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class QuizListStudentAction {
 
-    public static String subject;
-    public static String faculty;
-    public static String description;
-    public static String quizDir;
+    public static String currentCourseId; // To store the ID of the currently selected course
 
-    public Map<String, String> courseList() {
+    public Map<String, String> getQuizzesForCourse(String courseId) {
         Map<String, String> quizMap = new HashMap<>();
-        File directory = new File(quizDir);
-        if (!directory.exists() || !directory.isDirectory()) {
-            return quizMap;
-        }
+        String sql = "SELECT id, title FROM Quiz WHERE courseId = ?";
 
-        File[] allFiles = directory.listFiles();
-        if (allFiles == null) {
-            return quizMap;
-        }
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        for (File file : allFiles) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String title = reader.readLine();
-                if (title == null || title.trim().isEmpty()) {
-                    title = "Untitled Quiz";
-                }
-                quizMap.put(file.getName(), title);
-            } catch (IOException e) {
-                e.printStackTrace();
+            pstmt.setString(1, courseId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                quizMap.put(rs.getString("id"), rs.getString("title"));
             }
+        } catch (SQLException e) {
+            System.err.println("Database error loading quizzes for course: " + e.getMessage());
+            e.printStackTrace();
         }
         return quizMap;
     }
 
-    public static void openCourseListStudent(String quizFileName, String subject, String faculty, String description) throws IOException {
-        QuizListStudentAction.subject = subject;
-        QuizListStudentAction.faculty = faculty;
-        QuizListStudentAction.description = description;
-        QuizListStudentAction.quizDir = "src/main/resources/Courses/" + quizFileName + "/";
+    public static void openCourseListStudent(String courseId) throws IOException {
+        QuizListStudentAction.currentCourseId = courseId; // Store the course ID
 
         FXMLLoader fxmlLoader = new FXMLLoader(QuizListStudentAction.class.getResource("/com/quizapp/QuizListStudent.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
