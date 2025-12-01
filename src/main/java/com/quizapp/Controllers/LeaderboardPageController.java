@@ -63,7 +63,7 @@ public class LeaderboardPageController {
 
         home.setOnAction(e -> {
             try {
-                loginAction.openStudentMain(home); // Pass the home button
+                loginAction.openStudentMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -71,7 +71,7 @@ public class LeaderboardPageController {
 
         enroll.setOnAction(e -> {
             try {
-                EnrollAction.openEnrollPage(enroll); // Pass the enroll button
+                EnrollAction.openEnrollPage();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

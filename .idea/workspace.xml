@@ -5,22 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1dd3d2bb-e486-4426-9090-29d33ace6ba6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/EnrollAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/EnrollAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/LeaderboardAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/LeaderboardAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/LoginAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/LoginAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/QuizListStudentAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/QuizListStudentAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/QuizListTeacherAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/QuizListTeacherAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/SignUpAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/SignUpAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/TakeQuizAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/TakeQuizAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/AddCourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/AddCourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/AddQuizPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/AddQuizPageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/LoginPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/LoginPageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/QuizListStudentPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/QuizListStudentPageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/SignUpPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/SignUpPageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/StudentMainPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/StudentMainPageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/TeacherMainPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/TeacherMainPageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/CoursesAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Actions/CoursesAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/CoursesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/CoursesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/EnrollPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/EnrollPageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/LeaderboardPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/LeaderboardPageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/QuizListTeacherPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/QuizListTeacherPageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/TakeQuizPageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quizapp/Controllers/TakeQuizPageController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
