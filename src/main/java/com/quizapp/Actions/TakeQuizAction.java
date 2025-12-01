@@ -80,17 +80,8 @@ public class TakeQuizAction {
         }
     }
 
-    public static void openTakeQuizPage(String quizId, javafx.scene.control.Button currentButton) throws IOException {
-        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
-
+    public static void openTakeQuizPage(String quizId) throws IOException {
         TakeQuizAction.currentQuizId = quizId;
-
-        FXMLLoader fxmlLoader = new FXMLLoader(TakeQuizPageController.class.getResource("/com/quizapp/TakeQuiz.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage takeQuizStage = new Stage();
-        takeQuizStage.setTitle("Take Quiz");
-        takeQuizStage.setMaximized(true);
-        takeQuizStage.setScene(scene);
-        takeQuizStage.show();
+        com.quizapp.App.changeScene("/com/quizapp/TakeQuiz.fxml");
     }
 }

@@ -38,17 +38,8 @@ public class QuizListStudentAction {
         return quizMap;
     }
 
-    public static void openCourseListStudent(String courseId, javafx.scene.control.Button currentButton) throws IOException {
-        App.closeCurrentWindow(currentButton); // Close the current window
-
+    public static void openCourseListStudent(String courseId) throws IOException {
         QuizListStudentAction.currentCourseId = courseId; // Store the course ID
-
-        FXMLLoader fxmlLoader = new FXMLLoader(QuizListStudentAction.class.getResource("/com/quizapp/QuizListStudent.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage takeQuizStage = new Stage();
-        takeQuizStage.setMaximized(true);
-        takeQuizStage.setTitle("Quiz List");
-        takeQuizStage.setScene(scene);
-        takeQuizStage.show();
+        com.quizapp.App.changeScene("/com/quizapp/QuizListStudent.fxml");
     }
 }

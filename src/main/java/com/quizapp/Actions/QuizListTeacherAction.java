@@ -36,16 +36,8 @@ public class QuizListTeacherAction {
         return quizMap;
     }
 
-    public static void openCourseListTeacher(String courseId, javafx.scene.control.Button currentButton) throws IOException {
-        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
-
+    public static void openCourseListTeacher(String courseId) throws IOException {
         QuizListTeacherAction.currentCourseId = courseId;
-        FXMLLoader fxmlLoader = new FXMLLoader(QuizListTeacherAction.class.getResource("/com/quizapp/QuizListTeacher.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage takeQuizStage = new Stage();
-        takeQuizStage.setMaximized(true);
-        takeQuizStage.setTitle("Course List");
-        takeQuizStage.setScene(scene);
-        takeQuizStage.show();
+        com.quizapp.App.changeScene("/com/quizapp/QuizListTeacher.fxml");
     }
 }

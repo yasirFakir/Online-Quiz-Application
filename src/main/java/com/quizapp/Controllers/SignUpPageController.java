@@ -78,7 +78,7 @@ public class SignUpPageController {
 
         signInButton.setOnAction(e -> {
             try {
-                SignUpAction.start(signInButton); // Pass the signInButton
+                App.changeScene("/com/quizapp/LoginPageUI.fxml");
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

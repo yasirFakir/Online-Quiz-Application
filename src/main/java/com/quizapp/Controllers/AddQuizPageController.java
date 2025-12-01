@@ -77,16 +77,8 @@ public class AddQuizPageController {
         option4Field.textProperty().addListener((obs, oldVal, newVal) -> question.setOption4(newVal));
     }
 
-    public static void openAddQuizPage(String courseName, javafx.scene.control.Button currentButton) throws IOException {
-        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
-
+    public static void openAddQuizPage(String courseName) throws IOException {
         currentCourseName = courseName;
-        FXMLLoader fxmlLoader = new FXMLLoader(AddQuizPageController.class.getResource("/com/quizapp/AddQuiz.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage addQuizStage = new Stage();
-        addQuizStage.setTitle("Add New Quiz");
-        addQuizStage.setMaximized(true);
-        addQuizStage.setScene(scene);
-        addQuizStage.show();
+        com.quizapp.App.changeScene("/com/quizapp/AddQuiz.fxml");
     }
 }

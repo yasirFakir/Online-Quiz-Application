@@ -53,7 +53,7 @@ public class TeacherMainPageController {
 
         addCourses.setOnAction(e -> {
             try {
-                AddCourseController.openAddCoursePage(addCourses); // Pass the addCourses button
+                AddCourseController.openAddCoursePage(); // Pass the addCourses button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -61,7 +61,7 @@ public class TeacherMainPageController {
 
         logoutButton.setOnAction(e -> {
             try {
-                com.quizapp.Actions.LoginAction.logout(logoutButton);
+                com.quizapp.Actions.LoginAction.logout();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -70,7 +70,7 @@ public class TeacherMainPageController {
         homeButton.setOnAction(e -> {
             try {
                 // Reload the current page (TeacherMain.fxml)
-                com.quizapp.Actions.LoginAction.openTeacherMain(homeButton);
+                com.quizapp.Actions.LoginAction.openTeacherMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -147,7 +147,7 @@ public class TeacherMainPageController {
                     Button checkFilesButton = new Button("Edit");
                     checkFilesButton.setOnAction(e -> {
                         try {
-                            openCourseListTeacher(courseId, checkFilesButton); // Pass the checkFilesButton
+                            openCourseListTeacher(courseId); // Pass the checkFilesButton
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -156,7 +156,7 @@ public class TeacherMainPageController {
                     Button addQuizButton = new Button("Add Quiz");
                     addQuizButton.setOnAction(e -> {
                         try {
-                            AddQuizPageController.openAddQuizPage(subject, addQuizButton); // Pass the course name and addQuizButton
+                            AddQuizPageController.openAddQuizPage(subject); // Pass the course name
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }

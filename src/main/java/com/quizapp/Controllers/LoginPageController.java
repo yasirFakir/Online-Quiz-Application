@@ -80,9 +80,7 @@ public class LoginPageController {
     }
 
     private void handleSignUp() throws IOException {
-        // Handle sign-up logic here
-        loginAction.openSignUpWindow(signUpButton); // Pass the signUpButton
-        lblMessage.setText("Sign up button clicked!");
+        App.changeScene("/com/quizapp/SignUpPageUI.fxml");
     }
 
     private void handleLogin() throws IOException {

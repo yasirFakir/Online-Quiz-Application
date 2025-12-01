@@ -55,7 +55,7 @@ public class StudentMainPageController {
 
         enroll.setOnAction(e -> {
             try {
-                openEnrollPage(enroll); // Pass the enroll button
+                openEnrollPage();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -63,7 +63,7 @@ public class StudentMainPageController {
 
         leaderBoard.setOnAction(e -> {
             try {
-                openLeaderBoard(leaderBoard); // Pass the leaderBoard button
+                openLeaderBoard();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -71,7 +71,7 @@ public class StudentMainPageController {
 
         logoutButton.setOnAction(e -> {
             try {
-                com.quizapp.Actions.LoginAction.logout(logoutButton);
+                com.quizapp.Actions.LoginAction.logout();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -80,7 +80,7 @@ public class StudentMainPageController {
         homeButton.setOnAction(e -> {
             try {
                 // Reload the current page (StudentMain.fxml)
-                com.quizapp.Actions.LoginAction.openStudentMain(homeButton);
+                com.quizapp.Actions.LoginAction.openStudentMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -161,7 +161,7 @@ public class StudentMainPageController {
                     Button takeQuizButton = new Button("Take Quiz");
                     takeQuizButton.setOnAction(e -> {
                         try {
-                            openCourseListStudent(courseId, takeQuizButton); // Pass the takeQuizButton
+                            openCourseListStudent(courseId);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
