@@ -7,15 +7,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class TeacherMainAction {
-    public static void openAddCourses(javafx.scene.control.Button currentButton) throws IOException {
-        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
-
-        FXMLLoader fxmlLoader = new FXMLLoader(TeacherMainAction.class.getResource("/com/quizapp/Courses.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage takeQuizStage = new Stage();
-        takeQuizStage.setMaximized(true);
-        takeQuizStage.setTitle("Add Courses");
-        takeQuizStage.setScene(scene);
-        takeQuizStage.show();
+    public static void openAddCourses() throws IOException {
+        com.quizapp.App.changeScene("/com/quizapp/Courses.fxml");
     }
 }
