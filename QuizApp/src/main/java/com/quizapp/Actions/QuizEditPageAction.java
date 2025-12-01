@@ -1,54 +1,99 @@
 package com.quizapp.Actions;
 
-import java.io.*;
+import com.quizapp.DatabaseUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class QuizEditPageAction {
 
-    public List<Question> loadQuizData(String filePath) {
+    public List<Question> loadQuizData(String quizId) {
         List<Question> questions = new ArrayList<>();
-        File file = new File(filePath);
-        if (!file.exists()) {
-            return questions;
-        }
+        String sql = "SELECT text, correctAnswer, options FROM Question WHERE quizId = ?";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.readLine(); // Skip title
-            String line;
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 5);
-                if (parts.length < 5) continue;
+            pstmt.setString(1, quizId);
+            ResultSet rs = pstmt.executeQuery();
 
-                questions.add(new Question(parts[0], parts[1], parts[2], parts[3], parts[4]));
+            while (rs.next()) {
+                String text = rs.getString("text");
+                String correctAnswer = rs.getString("correctAnswer");
+                String optionsString = rs.getString("options");
+
+                // Split the options string back into individual options
+                String[] optionsArray = optionsString.split(",");
+                String option2 = optionsArray.length > 0 ? optionsArray[0] : "";
+                String option3 = optionsArray.length > 1 ? optionsArray[1] : "";
+                String option4 = optionsArray.length > 2 ? optionsArray[2] : "";
+
+                questions.add(new Question(text, correctAnswer, option2, option3, option4));
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
+            System.err.println("Database error loading quiz data: " + e.getMessage());
             e.printStackTrace();
         }
         return questions;
     }
 
-    public void saveQuizToFile(String filePath, String quizTitle, List<Question> questions) {
-        if (filePath == null || filePath.trim().isEmpty()) {
-            return;
-        }
+    public void updateQuizInDatabase(String quizId, String quizTitle, List<Question> questions) {
+        Connection conn = null;
+        try {
+            conn = DatabaseUtil.getConnection();
+            conn.setAutoCommit(false); // Start transaction
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write(quizTitle);
-            writer.newLine();
-
-            for (Question question : questions) {
-                writer.write(String.format("%s,%s,%s,%s,%s",
-                        question.getText(),
-                        question.getAnswer(),
-                        question.getOption2(),
-                        question.getOption3(),
-                        question.getOption4()));
-                writer.newLine();
+            // Update Quiz title
+            String updateQuizSql = "UPDATE Quiz SET title = ? WHERE id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuizSql)) {
+                pstmt.setString(1, quizTitle);
+                pstmt.setString(2, quizId);
+                pstmt.executeUpdate();
             }
-        } catch (IOException e) {
+
+            // Delete existing questions for this quiz
+            String deleteQuestionsSql = "DELETE FROM Question WHERE quizId = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteQuestionsSql)) {
+                pstmt.setString(1, quizId);
+                pstmt.executeUpdate();
+            }
+
+            // Insert new questions
+            String insertQuestionSql = "INSERT INTO Question (id, text, correctAnswer, options, quizId) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertQuestionSql)) {
+                for (Question question : questions) {
+                    if (!question.getText().isEmpty() && !question.getAnswer().isEmpty()) {
+                        pstmt.setString(1, UUID.randomUUID().toString());
+                        pstmt.setString(2, question.getText());
+                        pstmt.setString(3, question.getAnswer());
+                        String optionsString = String.join(",", question.getOption2(), question.getOption3(), question.getOption4());
+                        pstmt.setString(4, optionsString);
+                        pstmt.setString(5, quizId);
+                        pstmt.addBatch();
+                    }
+                }
+                pstmt.executeBatch();
+            }
+
+            conn.commit(); // Commit transaction
+            System.out.println("Quiz \"" + quizTitle + "\" updated successfully in database!");
+
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback(); // Rollback on error
+            } catch (SQLException ex) {
+                System.err.println("Rollback failed: " + ex.getMessage());
+            }
+            System.err.println("Database error updating quiz: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            DatabaseUtil.closeConnection(conn);
         }
     }
 
@@ -106,10 +151,5 @@ public class QuizEditPageAction {
         public void setOption4(String option4) {
             this.option4 = option4;
         }
-    }
-
-    @FunctionalInterface
-    public interface Setter {
-        void set(String value);
     }
 }

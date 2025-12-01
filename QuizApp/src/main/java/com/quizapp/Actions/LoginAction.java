@@ -1,6 +1,7 @@
 package com.quizapp.Actions;
 
 import com.quizapp.App;
+import com.quizapp.DatabaseUtil; // Import the new DatabaseUtil
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -8,26 +9,27 @@ import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.IOException; // Keep IOException for FXML loading
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class LoginAction {
 
     // Handle the login logic
     public void handleLoginAction(String username, String password, Label messageLabel, Button loginButton) throws IOException {
+        // The handleLogin method now directly returns the role based on database verification
         int loginResult = handleLogin(username, password);
 
         if (loginResult == 1) {  // Teacher login
             messageLabel.setTextFill(Color.GREEN);
             messageLabel.setText("Login successful!\nYou are a teacher.");
-            openTeacherMain();  // Open teacher window
-            closeCurrentWindow(loginButton);
+            openTeacherMain(loginButton);  // Open teacher window, pass loginButton
         } else if (loginResult == 2) {  // Student login
             messageLabel.setTextFill(Color.GREEN);
             messageLabel.setText("Login successful!\nYou are a student.");
-            openStudentMain();
-            closeCurrentWindow(loginButton);
+            openStudentMain(loginButton); // Open student window, pass loginButton
         } else {  // Invalid login
             messageLabel.setTextFill(Color.RED);
             messageLabel.setText("Invalid username or password.");
@@ -36,33 +38,29 @@ public class LoginAction {
 
     // Logic for handling login
     public int handleLogin(String username, String password) {
-        if (verifyCredentials(username, password, "teacher.csv")) {
-            App.username = username;
-            return 1;
-        } else if (verifyCredentials(username, password, "student.csv")) {
-            App.username = username;
-            return 2;
-        } else {
-            return 0; // Invalid credentials
-        }
+        // Call the refactored verifyCredentials method
+        return verifyCredentials(username, password);
     }
 
-    // Method to open the sign-up window
-    public void openTeacherMain() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/TeacherMain.fxml"));
+    // Method to open the teacher main window
+    public static void openTeacherMain(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/TeacherMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
         signUpStage.setTitle("Teacher Main Page");
         signUpStage.setScene(scene);
 
-        signUpStage.show(); // Open sign-up window
+        signUpStage.show(); // Open teacher main window
     }
 
+    // Method to open the sign-up window (kept for navigation, not directly related to login logic)
+    public void openSignUpWindow(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
 
-    // Method to open the sign-up window
-    public void openSignUpWindow() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/SignUpPageUI.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/SignUpPageUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage signUpStage = new Stage();
         signUpStage.setMaximized(true);
@@ -72,11 +70,11 @@ public class LoginAction {
         signUpStage.show(); // Open sign-up window
     }
 
-    public void openStudentMain() throws IOException {
-        // Ensure the path to FXML is correct and matches runtime packaging
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/quizapp/StudentMain.fxml"));
+    // Method to open the student main window
+    public static void openStudentMain(Button currentButton) throws IOException {
+        App.closeCurrentWindow(currentButton); // Close the current window
 
-        // Load the FXML file and create the scene
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/StudentMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage studentMainStage = new Stage();
         studentMainStage.setMaximized(true);
@@ -85,33 +83,44 @@ public class LoginAction {
         studentMainStage.show();
     }
 
-    public boolean verifyCredentials(String username, String password, String fileName) {
-        String line;
-        String filePath = "src/main/resources/credential/" + fileName;  // Use the correct file path
+    // Refactored method to verify credentials against the database
+    public int verifyCredentials(String username, String password) {
+        String sql = "SELECT id, username, password, role FROM User WHERE username = ? AND password = ?";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            while ((line = br.readLine()) != null) {
-                // Splitting line into values
-                String[] values = line.split(",");
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
 
-                // Assuming username is in the first position and password in the second
-                String fileUsername = values[0].trim().replace("\"", ""); // Remove quotes if present
-                String filePassword = values[1].trim().replace("\"", ""); // Remove quotes if present
-
-                // Checking if username and password match
-                if (fileUsername.equals(username) && filePassword.equals(password)) {
-                    return true; // Valid credentials
+            if (rs.next()) {
+                // Credentials are valid, now check the role
+                App.username = rs.getString("username"); // Set the global username
+                String role = rs.getString("role");
+                if ("TEACHER".equals(role)) {
+                    return 1; // Teacher
+                } else if ("STUDENT".equals(role)) {
+                    return 2; // Student
                 }
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
+            System.err.println("Database error during login: " + e.getMessage());
             e.printStackTrace();
         }
-
-        return false; // Invalid credentials
+        return 0; // Invalid credentials or database error
     }
 
-    public void closeCurrentWindow(Button button) {
-        Stage stage = (Stage) button.getScene().getWindow();
-        stage.close();  // Close the current stage (login window)
+        public static void logout(Button currentButton) throws IOException {
+        App.username = null; // Clear the logged-in user
+
+        App.closeCurrentWindow(currentButton); // Close the current window
+
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginAction.class.getResource("/com/quizapp/LoginPageUI.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = new Stage();
+        stage.setMaximized(true);
+        stage.setTitle("Login Page");
+        stage.setScene(scene);
+        stage.show();
     }
 }

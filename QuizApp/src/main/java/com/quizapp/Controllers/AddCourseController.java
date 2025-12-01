@@ -37,7 +37,9 @@ public class AddCourseController {
         }
     }
 
-    public static void openAddCoursePage() throws IOException {
+    public static void openAddCoursePage(javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
         FXMLLoader fxmlLoader = new FXMLLoader(AddCourseController.class.getResource("/com/quizapp/AddCourse.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage stage = new Stage();

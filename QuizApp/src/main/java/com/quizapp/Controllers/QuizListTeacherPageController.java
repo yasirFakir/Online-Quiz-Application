@@ -35,22 +35,22 @@ public class QuizListTeacherPageController {
 
         addQuiz.setOnAction(e -> {
             try {
-                AddQuizPageController.openAddQuizPage(QuizListTeacherAction.quizDir + QuizListTeacherAction.quizFile);
+                AddQuizPageController.openAddQuizPage(QuizListTeacherAction.currentCourseId, addQuiz); // Pass the addQuiz button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
 
-        addCoursesFromMap();
+        addQuizzesFromMap();
     }
 
-    private void addCoursesFromMap() {
+    private void addQuizzesFromMap() {
         CourseGrid.getChildren().clear();
-        Map<String, String> quizMap = quizListTeacherAction.courseList("quiz");
+        Map<String, String> quizMap = quizListTeacherAction.getQuizzesForTeacherCourse(QuizListTeacherAction.currentCourseId);
         int row = 0;
 
         for (Map.Entry<String, String> entry : quizMap.entrySet()) {
-            String fileName = entry.getKey();
+            String quizId = entry.getKey();
             String title = entry.getValue();
 
             Label titleLabel = new Label(title);
@@ -61,8 +61,7 @@ public class QuizListTeacherPageController {
 
             editButton.setOnAction(e -> {
                 try {
-                    String filePath = QuizListTeacherAction.quizDir + QuizListTeacherAction.quizFile + "/" + fileName;
-                    QuizEditPageController.openEditQuizPage(filePath);
+                    QuizEditPageController.openEditQuizPage(quizId, editButton); // Pass the editButton
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

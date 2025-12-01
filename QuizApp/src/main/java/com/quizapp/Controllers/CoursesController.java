@@ -30,7 +30,7 @@ public class CoursesController {
 
         Home.setOnAction(e -> {
             try {
-                coursesAction.goHome();
+                coursesAction.goHome(Home); // Pass the Home button
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

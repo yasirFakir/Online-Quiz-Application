@@ -18,7 +18,7 @@
 
                 <!-- Center Section: Buttons -->
                 <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS">
-                    <Button text="Home" />
+                    <Button fx:id="homeButton" text="Home" />
                     <Button fx:id="enroll" text="Enroll"/>
                     <Button fx:id="leaderBoard" text="LeaderBoard" />
                 </HBox>
@@ -26,7 +26,8 @@
                 <!-- Right Section: User Info -->
                 <HBox alignment="CENTER_RIGHT" spacing="10" HBox.hgrow="ALWAYS">
                     <ImageView fx:id="userImage" fitHeight="40" fitWidth="40" styleClass="userImage" />
-                    <Button text="User" />
+                    <Button fx:id="userButton" text="User" />
+                    <Button fx:id="logoutButton" text="Logout" />
                 </HBox>
             </HBox>
         </VBox>

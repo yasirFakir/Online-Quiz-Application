@@ -3,10 +3,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quizapp.Controllers.AddCourseController">
     <top>
-        <VBox spacing="10" padding="10">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
             <!-- Header Section -->
             <HBox alignment="CENTER" spacing="20">
                 <!-- Left Section: Logo -->
@@ -21,7 +25,10 @@
     </top>
 
     <center>
-        <VBox spacing="15" alignment="TOP_CENTER" padding="20">
+        <VBox spacing="15" alignment="TOP_CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
             <!-- Title Field -->
             <Label text="Course Title:" style="-fx-font-size: 14px;" />
             <TextField fx:id="courseTitleField" promptText="Enter the course title" prefWidth="400" />
@@ -31,12 +38,15 @@
             <TextArea fx:id="courseDescriptionField" promptText="Enter the course description" wrapText="true" prefWidth="400" prefHeight="120" />
 
             <!-- Submit Button -->
-            <Button fx:id="createCourseButton" text="Create Course" onAction="#createCourse" style="-fx-font-size: 14px; -fx-padding: 10;" />
+            <Button fx:id="createCourseButton" text="Create Course" onAction="#createCourse" style="-fx-font-size: 14px;" />
         </VBox>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" padding="10">
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
             <Label text="Quiz App © 2024" style="-fx-font-size: 12px;" />
         </HBox>
     </bottom>

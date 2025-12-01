@@ -1,17 +1,20 @@
 package com.quizapp.Actions;
 
+import com.quizapp.DatabaseUtil;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.UUID;
 
 public class AddQuizPageAction {
 
-    public void saveQuizToFile(String quizDir, String title, List<Question> questions) {
+    public void saveQuizToDatabase(String courseName, String title, int numQuestions, int quizDuration, List<Question> questions) {
         if (title.isEmpty()) {
             showErrorMessage("Quiz title is required.");
             return;
@@ -25,45 +28,68 @@ public class AddQuizPageAction {
             return;
         }
 
-        File directory = new File(quizDir);
-        if (!directory.exists() && !directory.mkdirs()) {
-            showErrorMessage("Could not create directory for quizzes.");
-            return;
-        }
+        Connection conn = null;
+        try {
+            conn = DatabaseUtil.getConnection();
+            conn.setAutoCommit(false); // Start transaction
 
-        int nextQuizNumber = 1;
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                String name = file.getName();
-                if (name.matches("quiz\\d+\\.csv")) {
-                    int currentNumber = Integer.parseInt(name.replaceAll("\\D", ""));
-                    nextQuizNumber = Math.max(nextQuizNumber, currentNumber + 1);
-                }
-            }
-        }
-        String fileName = "quiz" + nextQuizNumber + ".csv";
-        File file = new File(directory, fileName);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(title);
-            writer.newLine();
-
-            for (Question question : questions) {
-                if (!question.getText().isEmpty() && !question.getAnswer().isEmpty()) {
-                    writer.write(String.format("%s,%s,%s,%s,%s",
-                            question.getText(),
-                            question.getAnswer(),
-                            question.getOption2(),
-                            question.getOption3(),
-                            question.getOption4()));
-                    writer.newLine();
+            // Find the Course ID
+            String courseId = null;
+            String findCourseSql = "SELECT id FROM Course WHERE name = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(findCourseSql)) {
+                pstmt.setString(1, courseName);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    courseId = rs.getString("id");
+                } else {
+                    showErrorMessage("Course not found: " + courseName);
+                    return;
                 }
             }
 
-            showSuccessMessage("Quiz saved successfully as: " + file.getName());
-        } catch (IOException e) {
-            showErrorMessage("Error saving quiz: " + e.getMessage());
+            // Insert Quiz
+            String quizId = UUID.randomUUID().toString();
+            String insertQuizSql = "INSERT INTO Quiz (id, title, numQuestions, quizDuration, courseId) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertQuizSql)) {
+                pstmt.setString(1, quizId);
+                pstmt.setString(2, title);
+                pstmt.setInt(3, numQuestions);
+                pstmt.setInt(4, quizDuration);
+                pstmt.setString(5, courseId);
+                pstmt.executeUpdate();
+            }
+
+            // Insert Questions
+            String insertQuestionSql = "INSERT INTO Question (id, text, correctAnswer, options, quizId) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertQuestionSql)) {
+                for (Question question : questions) {
+                    if (!question.getText().isEmpty() && !question.getAnswer().isEmpty()) {
+                        pstmt.setString(1, UUID.randomUUID().toString());
+                        pstmt.setString(2, question.getText());
+                        pstmt.setString(3, question.getAnswer());
+                        // Combine all options into a single comma-separated string
+                        String optionsString = String.join(",", question.getOption2(), question.getOption3(), question.getOption4());
+                        pstmt.setString(4, optionsString);
+                        pstmt.setString(5, quizId);
+                        pstmt.addBatch(); // Add to batch for efficient insertion
+                    }
+                }
+                pstmt.executeBatch(); // Execute all batched inserts
+            }
+
+            conn.commit(); // Commit transaction
+            showSuccessMessage("Quiz \"" + title + "\" saved successfully to database!");
+
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback(); // Rollback on error
+            } catch (SQLException ex) {
+                System.err.println("Rollback failed: " + ex.getMessage());
+            }
+            showErrorMessage("Error saving quiz to database: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            DatabaseUtil.closeConnection(conn);
         }
     }
 
@@ -77,6 +103,7 @@ public class AddQuizPageAction {
         alert.showAndWait();
     }
 
+    // Updated Question class to match database schema
     public static class Question {
         private String text;
         private String answer;

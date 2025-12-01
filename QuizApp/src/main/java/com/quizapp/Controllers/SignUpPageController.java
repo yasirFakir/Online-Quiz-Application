@@ -78,8 +78,7 @@ public class SignUpPageController {
 
         signInButton.setOnAction(e -> {
             try {
-                SignUpAction.start();
-                closeCurrentWindow();
+                SignUpAction.start(signInButton); // Pass the signInButton
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -154,8 +153,5 @@ public class SignUpPageController {
         }
     }
 
-    public void closeCurrentWindow() {
-        Stage stage = (Stage) signInButton.getScene().getWindow();
-        stage.close();
-    }
+    
 }

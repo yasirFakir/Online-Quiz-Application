@@ -81,9 +81,8 @@ public class LoginPageController {
 
     private void handleSignUp() throws IOException {
         // Handle sign-up logic here
-        loginAction.openSignUpWindow();
+        loginAction.openSignUpWindow(signUpButton); // Pass the signUpButton
         lblMessage.setText("Sign up button clicked!");
-        closeCurrentWindow();
     }
 
     private void handleLogin() throws IOException {
@@ -93,9 +92,5 @@ public class LoginPageController {
         loginAction.handleLoginAction(username,password,lblMessage,loginButton);  // Call the method to set up the actions
     }
 
-    // Close the current login window
-    public void closeCurrentWindow() {
-        Stage stage = (Stage) signUpButton.getScene().getWindow();
-        stage.close();  // Close the current stage (login window)
-    }
+    
 }

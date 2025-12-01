@@ -2,94 +2,88 @@ package com.quizapp.Actions;
 
 import com.quizapp.App;
 import com.quizapp.Controllers.TakeQuizPageController;
+import com.quizapp.DatabaseUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
 
 public class TakeQuizAction {
-    public static String filePath;
-    public static String courseName;
+    public static String currentQuizId; // To store the ID of the currently selected quiz
 
-    public void updateLeaderFile(int scoreToAdd) throws IOException {
-        List<String[]> leaders = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(App.leaderBoard))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(" ");
-                leaders.add(data);
-            }
-        }
-
-        boolean userFound = false;
-        for (String[] leader : leaders) {
-            if (leader[1].equals(App.username)) {
-                int currentScore = Integer.parseInt(leader[0].trim());
-                leader[0] = String.valueOf(currentScore + scoreToAdd);
-                userFound = true;
-                break;
-            }
-        }
-        if (!userFound) {
-            leaders.add(new String[]{String.valueOf(scoreToAdd), App.username});
-        }
-
-        leaders.sort((a, b) -> Integer.parseInt(b[0]) - Integer.parseInt(a[0]));
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(App.leaderBoard))) {
-            for (String[] leader : leaders) {
-                bw.write(String.join(" ", leader));
-                bw.newLine();
-            }
-        }
-    }
-
-    public void updateQuizTakenCount(String courseName) {
-        String file = "src/main/resources/studentInfo/" + App.username + ".csv";
-        List<String[]> rows = new ArrayList<>();
-
+    public void updateLeaderboardScore(int scoreToAdd) {
+        Connection conn = null;
         try {
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    rows.add(line.split(","));
+            conn = DatabaseUtil.getConnection();
+
+            // Get user ID
+            String userId = null;
+            String getUserIdSql = "SELECT id FROM User WHERE username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(getUserIdSql)) {
+                pstmt.setString(1, App.username);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    userId = rs.getString("id");
                 }
             }
 
-            boolean courseFound = false;
-            for (String[] row : rows) {
-                if (row[0].equals(courseName)) {
-                    int quizTakenCount = Integer.parseInt(row[2].trim());
-                    quizTakenCount++;
-                    row[2] = String.valueOf(quizTakenCount);
-                    courseFound = true;
-                    break;
-                }
-            }
-
-            if (!courseFound) {
+            if (userId == null) {
+                System.err.println("User not found for leaderboard update: " + App.username);
                 return;
             }
 
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-                for (String[] row : rows) {
-                    String line = String.join(",", row);
-                    bw.write(line);
-                    bw.newLine();
+            // Check if leaderboard entry exists for the user
+            String checkLeaderboardSql = "SELECT id, score FROM LeaderboardEntry WHERE userId = ?";
+            int currentScore = 0;
+            String leaderboardEntryId = null;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(checkLeaderboardSql)) {
+                pstmt.setString(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    currentScore = rs.getInt("score");
+                    leaderboardEntryId = rs.getString("id"); // Assuming ID is also selected
                 }
             }
-        } catch (IOException | NumberFormatException e) {
+
+            if (leaderboardEntryId != null) {
+                // Update existing entry
+                String updateLeaderboardSql = "UPDATE LeaderboardEntry SET score = ? WHERE userId = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(updateLeaderboardSql)) {
+                    pstmt.setInt(1, currentScore + scoreToAdd);
+                    pstmt.setString(2, userId);
+                    pstmt.executeUpdate();
+                }
+            } else {
+                // Create new entry
+                String insertLeaderboardSql = "INSERT INTO LeaderboardEntry (id, score, userId) VALUES (?, ?, ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(insertLeaderboardSql)) {
+                    pstmt.setString(1, UUID.randomUUID().toString());
+                    pstmt.setInt(2, scoreToAdd);
+                    pstmt.setString(3, userId);
+                    pstmt.executeUpdate();
+                }
+            }
+            System.out.println("Leaderboard updated for " + App.username + ": score added " + scoreToAdd);
+
+        } catch (SQLException e) {
+            System.err.println("Database error updating leaderboard: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            DatabaseUtil.closeConnection(conn);
         }
     }
 
-    public static void openTakeQuizPage(String quizDir, String fileName) throws IOException {
-        filePath = quizDir + fileName;
-        courseName = quizDir.endsWith("/") ? quizDir.substring(0, quizDir.length() - 1) : quizDir;
-        courseName = courseName.substring(courseName.lastIndexOf("/") + 1);
+    public static void openTakeQuizPage(String quizId, javafx.scene.control.Button currentButton) throws IOException {
+        com.quizapp.App.closeCurrentWindow(currentButton); // Close the current window
+
+        TakeQuizAction.currentQuizId = quizId;
 
         FXMLLoader fxmlLoader = new FXMLLoader(TakeQuizPageController.class.getResource("/com/quizapp/TakeQuiz.fxml"));
         Scene scene = new Scene(fxmlLoader.load());

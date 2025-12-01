@@ -4,7 +4,7 @@ module com.quizapp {
     requires java.desktop;
     requires kotlin.stdlib;
     requires jdk.incubator.vector;
-
+    requires java.sql; // Added for JDBC
 
     opens com.quizapp to javafx.fxml;
     exports com.quizapp;
