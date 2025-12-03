@@ -51,7 +51,7 @@ public class EnrollPageController {
 
         leaderBoard.setOnAction(e -> {
             try {
-                LeaderboardAction.openLeaderBoard(leaderBoard); // Pass the leaderBoard button
+                LeaderboardAction.openLeaderBoard();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -59,7 +59,7 @@ public class EnrollPageController {
 
         home.setOnAction(e -> {
             try {
-                loginAction.openStudentMain(home); // Pass the home button
+                loginAction.openStudentMain();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

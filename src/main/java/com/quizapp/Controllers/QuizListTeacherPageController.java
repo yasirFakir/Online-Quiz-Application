@@ -35,7 +35,7 @@ public class QuizListTeacherPageController {
 
         addQuiz.setOnAction(e -> {
             try {
-                AddQuizPageController.openAddQuizPage(QuizListTeacherAction.currentCourseId, addQuiz); // Pass the addQuiz button
+                AddQuizPageController.openAddQuizPage(QuizListTeacherAction.currentCourseId);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -61,7 +61,7 @@ public class QuizListTeacherPageController {
 
             editButton.setOnAction(e -> {
                 try {
-                    QuizEditPageController.openEditQuizPage(quizId, editButton); // Pass the editButton
+                    QuizEditPageController.openEditQuizPage(quizId);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

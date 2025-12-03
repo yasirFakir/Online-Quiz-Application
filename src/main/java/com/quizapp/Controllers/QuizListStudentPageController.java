@@ -97,7 +97,7 @@ public class QuizListStudentPageController {
 
             takeQuizButton.setOnAction(e -> {
                 try {
-                    TakeQuizAction.openTakeQuizPage(quizId, takeQuizButton); // Pass the takeQuizButton
+                    TakeQuizAction.openTakeQuizPage(quizId);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

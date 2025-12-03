@@ -51,7 +51,7 @@ public class TakeQuizPageController {
                 if (timeline != null) {
                     timeline.stop();
                 }
-                com.quizapp.Actions.LoginAction.openStudentMain(homeButton); // Navigate to student main page
+                com.quizapp.Actions.LoginAction.openStudentMain(); // Navigate to student main page
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
