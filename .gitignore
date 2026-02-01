@@ -1,0 +1,49 @@
+# General
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.swp
+
+# Gradle / Java / Kotlin
+.gradle/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.hprof
+hs_err_pid*
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.properties
+
+# Frontend / Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.kotlin/
+.js/
+.map
+
+# Backend / Spring
+!backend/mvnw
+!backend/mvnw.cmd
+backend/help.md
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Local Environment & Secrets
+local_env/
+.env
+.env.local
+secrets.properties
+
+# Project Specific
+temp_archive/
+previous_attempt/
