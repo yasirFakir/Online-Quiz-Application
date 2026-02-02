@@ -3,6 +3,8 @@ package com.quiz.ui.screens.auth
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,8 +27,14 @@ fun SignupScreen(
 ) {
     var fullName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var studentLevel by remember { mutableStateOf("University") }
     var password by remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf("STUDENT") }
+
+    val levels = listOf("School", "College", "University", "Masters", "PhD")
+    var showLevelMenu by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp)
@@ -101,7 +109,8 @@ fun SignupScreen(
                         modifier = Modifier
                             .width(450.dp)
                             .border(1.dp, GoniaEduColors.Border, RectangleShape)
-                            .padding(vertical = 40.dp, horizontal = 40.dp),
+                            .padding(vertical = 40.dp, horizontal = 40.dp)
+                            .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -132,27 +141,13 @@ fun SignupScreen(
                             Text("Teacher", fontWeight = FontWeight.Medium)
                         }
 
-                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("Full Name", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                            OutlinedTextField(
-                                value = fullName,
-                                onValueChange = { fullName = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                shape = RectangleShape,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    focusedBorderColor = GoniaEduColors.Primary,
-                                    unfocusedBorderColor = GoniaEduColors.Border
-                                )
-                            )
-                        }
-
+                        // Updated Order: Credentials first
                         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("Username", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             OutlinedTextField(
                                 value = username,
                                 onValueChange = { username = it },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
                                 singleLine = true,
                                 shape = RectangleShape,
                                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -167,7 +162,7 @@ fun SignupScreen(
                             OutlinedTextField(
                                 value = password,
                                 onValueChange = { password = it },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
                                 singleLine = true,
                                 shape = RectangleShape,
                                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -175,6 +170,84 @@ fun SignupScreen(
                                     unfocusedBorderColor = GoniaEduColors.Border
                                 )
                             )
+                        }
+
+                        Divider(modifier = Modifier.padding(vertical = 4.dp), color = GoniaEduColors.Border)
+
+                        // Personal Info
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Full Name", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            OutlinedTextField(
+                                value = fullName,
+                                onValueChange = { fullName = it },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                singleLine = true,
+                                shape = RectangleShape,
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    focusedBorderColor = GoniaEduColors.Primary,
+                                    unfocusedBorderColor = GoniaEduColors.Border
+                                )
+                            )
+                        }
+
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Email", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            OutlinedTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                singleLine = true,
+                                shape = RectangleShape,
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    focusedBorderColor = GoniaEduColors.Primary,
+                                    unfocusedBorderColor = GoniaEduColors.Border
+                                )
+                            )
+                        }
+
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Phone Number", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            OutlinedTextField(
+                                value = phoneNumber,
+                                onValueChange = { phoneNumber = it },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                singleLine = true,
+                                shape = RectangleShape,
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    focusedBorderColor = GoniaEduColors.Primary,
+                                    unfocusedBorderColor = GoniaEduColors.Border
+                                )
+                            )
+                        }
+
+                        if (selectedRole == "STUDENT") {
+                            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("Student Level", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedButton(
+                                        onClick = { showLevelMenu = true },
+                                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                                        shape = RectangleShape,
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = GoniaEduColors.TextMain)
+                                    ) {
+                                        Text(studentLevel)
+                                    }
+                                    DropdownMenu(
+                                        expanded = showLevelMenu,
+                                        onDismissRequest = { showLevelMenu = false },
+                                        modifier = Modifier.width(370.dp)
+                                    ) {
+                                        levels.forEach { level ->
+                                            DropdownMenuItem(onClick = {
+                                                studentLevel = level
+                                                showLevelMenu = false
+                                            }) {
+                                                Text(level)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))

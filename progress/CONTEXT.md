@@ -55,5 +55,8 @@ When generating code for this project, you **MUST** strictly adhere to the follo
         - **Design Update**: Updated Theme to "Sage Green" based on "Student-Studying.jpg".
         - **Layout Update**: Implemented 50/50 split for Login/Signup screens.
         - **Asset Management**: Added `login_illustration.jpg` to resources.
+        - **Backend Expansion**: Implemented JPA entities (Course, Quiz, Question, etc.) and Spring Mail integration.
+        - **Auth Enhancement**: Updated User model and Signup UI with email, phone, and student level fields.
+        - **Security**: Implemented a 6-digit verification code flow for password resets.
     </recent_actions>
 </state_snapshot>

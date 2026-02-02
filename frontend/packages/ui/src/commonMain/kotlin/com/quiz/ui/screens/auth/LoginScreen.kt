@@ -21,7 +21,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun LoginScreen(
     onLoginSuccess: (role: String) -> Unit,
-    onNavigateToSignup: () -> Unit
+    onNavigateToSignup: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -140,13 +141,17 @@ fun LoginScreen(
                             )
                         }
 
-                        Text(
-                            text = "Forgot Password?",
-                            modifier = Modifier.align(Alignment.End),
-                            color = GoniaEduColors.Primary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        TextButton(
+                            onClick = onNavigateToForgotPassword,
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text(
+                                text = "Forgot Password?",
+                                color = GoniaEduColors.Primary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 

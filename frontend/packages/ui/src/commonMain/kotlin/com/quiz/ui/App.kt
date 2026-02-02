@@ -1,6 +1,7 @@
 package com.quiz.ui
 
 import androidx.compose.runtime.*
+import com.quiz.ui.screens.auth.ForgotPasswordScreen
 import com.quiz.ui.screens.auth.LoginScreen
 import com.quiz.ui.screens.auth.SignupScreen
 import com.quiz.ui.screens.student.StudentDashboard
@@ -10,6 +11,7 @@ import com.quiz.ui.theme.GoniaEduTheme
 sealed class Screen {
     object Login : Screen()
     object Signup : Screen()
+    object ForgotPassword : Screen()
     data class StudentDashboard(val username: String) : Screen()
     data class TeacherDashboard(val username: String) : Screen()
 }
@@ -28,11 +30,15 @@ fun App() {
                         Screen.StudentDashboard("Student User")
                     }
                 },
-                onNavigateToSignup = { currentScreen = Screen.Signup }
+                onNavigateToSignup = { currentScreen = Screen.Signup },
+                onNavigateToForgotPassword = { currentScreen = Screen.ForgotPassword }
             )
             is Screen.Signup -> SignupScreen(
                 onSignupSuccess = { currentScreen = Screen.Login },
                 onNavigateToLogin = { currentScreen = Screen.Login }
+            )
+            is Screen.ForgotPassword -> ForgotPasswordScreen(
+                onNavigateBack = { currentScreen = Screen.Login }
             )
             is Screen.StudentDashboard -> StudentDashboard(
                 username = screen.username,
